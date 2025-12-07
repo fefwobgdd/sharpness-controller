@@ -29,7 +29,7 @@
         <input id="file" type="file" accept="image/*">
         <div class="slider">
           <div class="label">Sharpness</div>
-          <input id="amount" type="range" min="0" max="40000" value="40000">
+          <input id="amount" type="range" min="0" max="400000" value="80">
           <div id="amountVal">80%</div>
         </div>
         <button id="download" class="btn">Download PNG</button>
@@ -133,7 +133,7 @@ function blur(imgData){
 }
 
 amountEl.addEventListener('input',()=>{
-  amountVal.textContent = amountEl.value+'%'
+  amountVal.textContent = amountEl.value
   if(origCtx) sharpen(Number(amountEl.value))
 })
 
