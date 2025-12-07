@@ -3,284 +3,167 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Image Sharpener — Upload & Control Sharpness</title>
+  <title>Image Sharpener</title>
   <style>
-    :root{--bg:#0f172a;--card:#0b1220;--muted:#9aa7bf;--accent:#60a5fa}
-    html,body{height:100%;margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial}
-    body{background:linear-gradient(180deg,#071029 0%,#071827 100%);color:#e6eef8;display:flex;align-items:center;justify-content:center;padding:28px}
-    .wrap{width:100%;max-width:1100px;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));border-radius:12px;box-shadow:0 10px 30px rgba(2,6,23,0.7);padding:20px;display:grid;grid-template-columns:360px 1fr;gap:20px}
-    .panel{background:rgba(255,255,255,0.02);border-radius:10px;padding:16px}
-    h1{font-size:18px;margin:0 0 8px 0}
-    p.lead{margin:0 0 14px 0;color:var(--muted);font-size:13px}
-    .controls{display:flex;flex-direction:column;gap:12px}
-    .file-row{display:flex;gap:8px;align-items:center}
-    .file-row input[type=file]{display:block}
-    label.range{display:flex;flex-direction:column;gap:8px}
-    .range-row{display:flex;align-items:center;gap:10px}
-    input[type=range]{width:100%}
-    .btn{background:linear-gradient(90deg,var(--accent),#3b82f6);padding:8px 12px;border-radius:8px;color:#021124;border:0;font-weight:600;cursor:pointer}
-    .preview{display:grid;grid-template-rows:auto 1fr;gap:12px}
-    .canvas-wrap{background:#071227;border-radius:8px;padding:12px;display:flex;gap:12px;align-items:center;justify-content:center}
-    canvas{max-width:100%;height:auto;border-radius:6px}
-    .meta{display:flex;gap:8px;align-items:center;color:var(--muted);font-size:13px}
-    .row{display:flex;gap:8px;align-items:center}
-    .slider-label{min-width:90px;color:var(--muted);font-size:13px}
-    .footer{display:flex;justify-content:space-between;align-items:center;margin-top:12px;color:var(--muted);font-size:13px}
-    .side-by-side{display:flex;gap:12px;flex-wrap:wrap}
-    .col{flex:1;min-width:220px}
-    @media (max-width:900px){.wrap{grid-template-columns:1fr;max-width:760px}}
+    html,body{margin:0;height:100%;font-family:Inter,system-ui;background:#0f0f16;color:#eee;display:flex;align-items:center;justify-content:center;padding:24px}
+    .wrap{width:100%;max-width:1100px;background:#151521;border-radius:14px;box-shadow:0 0 40px rgba(0,0,0,0.6);padding:20px;display:grid;grid-template-columns:360px 1fr;gap:20px}
+    @media(max-width:900px){.wrap{grid-template-columns:1fr}}
+    .panel{background:#1c1c2b;border-radius:12px;padding:18px}
+    h1{margin:0 0 12px 0;font-size:20px;font-weight:600}
+    .controls{display:flex;flex-direction:column;gap:16px}
+    input[type=file]{display:block}
+    .btn{background:#4e7bff;padding:9px 14px;border-radius:8px;border:0;color:#fff;font-weight:600;cursor:pointer}
+    .slider{display:flex;align-items:center;gap:10px}
+    input[type=range]{flex:1}
+    canvas{max-width:100%;height:auto;border-radius:8px;background:#000}
+    .label{font-size:14px;color:#9da3ba;min-width:95px}
+    .row{display:flex;gap:12px;width:100%}
+    .col{flex:1}
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="panel">
       <h1>Image Sharpener</h1>
-      <p class="lead">Upload any image, then use the slider to control sharpening in real time. Preview, compare, and download.</p>
       <div class="controls">
-        <div class="file-row">
-          <input id="file" type="file" accept="image/*">
-          <button id="reset" class="btn">Reset</button>
+        <input id="file" type="file" accept="image/*">
+        <div class="slider">
+          <div class="label">Sharpness</div>
+          <input id="amount" type="range" min="0" max="400" value="80">
+          <div id="amountVal">80%</div>
         </div>
-        <label class="range">
-          <div class="range-row">
-            <div class="slider-label">Sharpness</div>
-            <div style="flex:1">
-              <input id="amount" type="range" min="0" max="200" value="40">
-            </div>
-            <div id="amountVal">40%</div>
-          </div>
-        </label>
-        <label class="range">
-          <div class="range-row">
-            <div class="slider-label">Radius</div>
-            <div style="flex:1">
-              <input id="radius" type="range" min="1" max="10" value="1">
-            </div>
-            <div id="radiusVal">1</div>
-          </div>
-        </label>
-        <div style="display:flex;gap:8px">
-          <button id="download" class="btn">Download PNG</button>
-          <button id="fit" class="btn">Fit to 1024</button>
-        </div>
-        <div class="meta">Tip: larger images may be downscaled for performance. Use the Fit to 1024 button to resize before sharpening.</div>
-      </div>
-      <div class="footer">
-        <div>Made with Canvas · Works offline</div>
-        <div id="stats"></div>
+        <button id="download" class="btn">Download PNG</button>
+        <button id="reset" class="btn">Reset</button>
       </div>
     </div>
-    <div class="panel preview">
-      <div class="side-by-side">
+    <div class="panel">
+      <div class="row">
         <div class="col">
-          <div style="font-size:13px;color:var(--muted);margin-bottom:6px">Original</div>
-          <div class="canvas-wrap"><canvas id="orig"></canvas></div>
+          <div style="font-size:14px;margin-bottom:6px;color:#9da3ba">Original</div>
+          <canvas id="orig"></canvas>
         </div>
         <div class="col">
-          <div style="font-size:13px;color:var(--muted);margin-bottom:6px">Sharpened</div>
-          <div class="canvas-wrap"><canvas id="out"></canvas></div>
+          <div style="font-size:14px;margin-bottom:6px;color:#9da3ba">Sharpened</div>
+          <canvas id="out"></canvas>
         </div>
-      </div>
-      <div style="margin-top:8px;display:flex;gap:8px;align-items:center">
-        <input id="compare" type="checkbox"> <label for="compare" style="color:var(--muted);font-size:13px">Show difference overlay</label>
       </div>
     </div>
   </div>
-  <script>
-    const fileEl = document.getElementById('file')
-    const origCanvas = document.getElementById('orig')
-    const outCanvas = document.getElementById('out')
-    const amountEl = document.getElementById('amount')
-    const radiusEl = document.getElementById('radius')
-    const amountVal = document.getElementById('amountVal')
-    const radiusVal = document.getElementById('radiusVal')
-    const downloadBtn = document.getElementById('download')
-    const resetBtn = document.getElementById('reset')
-    const fitBtn = document.getElementById('fit')
-    const compareEl = document.getElementById('compare')
-    const stats = document.getElementById('stats')
-    let img = new Image()
-    let origCtx, outCtx
-    function ensureCanvases(w,h){
-      origCanvas.width = w
-      origCanvas.height = h
-      outCanvas.width = w
-      outCanvas.height = h
-      origCtx = origCanvas.getContext('2d')
-      outCtx = outCanvas.getContext('2d')
-    }
-    function reset(){
-      fileEl.value = ''
-      origCtx && origCtx.clearRect(0,0,origCanvas.width,origCanvas.height)
-      outCtx && outCtx.clearRect(0,0,outCanvas.width,outCanvas.height)
-      stats.textContent = ''
-    }
-    function clamp(v,min,max){return v<min?min:v>max?max:v}
-    function downscaleIfNeeded(image,wLimit){
-      let w = image.width
-      let h = image.height
-      if(Math.max(w,h) <= wLimit) return {w,h}
-      const ratio = w>h ? wLimit/w : wLimit/h
-      return {w:Math.round(w*ratio), h:Math.round(h*ratio)}
-    }
-    function applyUnsharpMask(amountPercent,radius){
-      const amount = amountPercent/100
-      const width = origCanvas.width
-      const height = origCanvas.height
-      const origData = origCtx.getImageData(0,0,width,height)
-      const blurred = gaussianBlur(origData,radius)
-      const out = outCtx.createImageData(width,height)
-      const total = width*height*4
-      for(let i=0;i<total;i+=4){
-        out.data[i] = clamp(origData.data[i] + amount*(origData.data[i]-blurred.data[i]),0,255)
-        out.data[i+1] = clamp(origData.data[i+1] + amount*(origData.data[i+1]-blurred.data[i+1]),0,255)
-        out.data[i+2] = clamp(origData.data[i+2] + amount*(origData.data[i+2]-blurred.data[i+2]),0,255)
-        out.data[i+3] = origData.data[i+3]
+
+<script>
+const fileEl = document.getElementById('file')
+const origCanvas = document.getElementById('orig')
+const outCanvas = document.getElementById('out')
+const amountEl = document.getElementById('amount')
+const amountVal = document.getElementById('amountVal')
+const downloadBtn = document.getElementById('download')
+const resetBtn = document.getElementById('reset')
+let origCtx, outCtx, img = new Image()
+
+function ensure(w,h){origCanvas.width=w;origCanvas.height=h;outCanvas.width=w;outCanvas.height=h;origCtx=origCanvas.getContext('2d');outCtx=outCanvas.getContext('2d')}
+function clamp(v,min,max){return v<min?min:v>max?max:v}
+
+function sharpen(amount){
+  const w = origCanvas.width
+  const h = origCanvas.height
+  const src = origCtx.getImageData(0,0,w,h)
+  const blurred = blur(src)
+  const out = outCtx.createImageData(w,h)
+  const t = w*h*4
+  const k = amount/100
+  for(let i=0;i<t;i+=4){
+    out.data[i] = clamp(src.data[i] + k*(src.data[i]-blurred.data[i]),0,255)
+    out.data[i+1] = clamp(src.data[i+1] + k*(src.data[i+1]-blurred.data[i+1]),0,255)
+    out.data[i+2] = clamp(src.data[i+2] + k*(src.data[i+2]-blurred.data[i+2]),0,255)
+    out.data[i+3] = src.data[i+3]
+  }
+  outCtx.putImageData(out,0,0)
+}
+
+function blur(imgData){
+  const w = imgData.width
+  const h = imgData.height
+  const src = imgData.data
+  const dst = new Uint8ClampedArray(src.length)
+  const kernel = [1,2,1]
+  const kw = 1
+  const norm = 4
+
+  const temp = new Uint8ClampedArray(src.length)
+  for(let y=0;y<h;y++){
+    for(let x=0;x<w;x++){
+      let r=0,g=0,b=0,a=0
+      for(let k=-kw;k<=kw;k++){
+        const ix = clamp(x+k,0,w-1)
+        const idx = (y*w+ix)*4
+        const kv = kernel[k+kw]
+        r+=src[idx]*kv
+        g+=src[idx+1]*kv
+        b+=src[idx+2]*kv
+        a+=src[idx+3]*kv
       }
-      outCtx.putImageData(out,0,0)
-      if(compareEl.checked){
-        drawDifference(origData,out)
-      }
+      const o = (y*w+x)*4
+      temp[o]=r/norm
+      temp[o+1]=g/norm
+      temp[o+2]=b/norm
+      temp[o+3]=a/norm
     }
-    function drawDifference(a,b){
-      const width = origCanvas.width
-      const height = origCanvas.height
-      const diff = outCtx.createImageData(width,height)
-      const total = width*height*4
-      for(let i=0;i<total;i+=4){
-        diff.data[i] = Math.abs(a.data[i]-b.data[i])
-        diff.data[i+1] = Math.abs(a.data[i+1]-b.data[i+1])
-        diff.data[i+2] = Math.abs(a.data[i+2]-b.data[i+2])
-        diff.data[i+3] = 255
+  }
+
+  for(let x=0;x<w;x++){
+    for(let y=0;y<h;y++){
+      let r=0,g=0,b=0,a=0
+      for(let k=-kw;k<=kw;k++){
+        const iy = clamp(y+k,0,h-1)
+        const idx = (iy*w+x)*4
+        const kv = kernel[k+kw]
+        r+=temp[idx]*kv
+        g+=temp[idx+1]*kv
+        b+=temp[idx+2]*kv
+        a+=temp[idx+3]*kv
       }
-      outCtx.globalAlpha = 0.45
-      outCtx.putImageData(diff,0,0)
-      outCtx.globalAlpha = 1
+      const o = (y*w+x)*4
+      dst[o]=r/norm
+      dst[o+1]=g/norm
+      dst[o+2]=b/norm
+      dst[o+3]=a/norm
     }
-    function gaussianBlur(imageData,radius){
-      radius = Math.max(0.5, radius)
-      const w = imageData.width
-      const h = imageData.height
-      const src = imageData.data
-      const tmp = new Uint8ClampedArray(src.length)
-      const dst = new Uint8ClampedArray(src.length)
-      const kernel = makeKernel(radius)
-      const half = Math.floor(kernel.length/2)
-      for(let y=0;y<h;y++){
-        for(let x=0;x<w;x++){
-          let r=0,g=0,b=0,a=0,kwSum=0
-          for(let k=0;k<kernel.length;k++){
-            const ix = clamp(x + k-half,0,w-1)
-            const idx = (y*w + ix)*4
-            const kv = kernel[k]
-            r += src[idx]*kv
-            g += src[idx+1]*kv
-            b += src[idx+2]*kv
-            a += src[idx+3]*kv
-            kwSum += kv
-          }
-          const idx = (y*w + x)*4
-          tmp[idx] = r/kwSum
-          tmp[idx+1] = g/kwSum
-          tmp[idx+2] = b/kwSum
-          tmp[idx+3] = a/kwSum
-        }
-      }
-      for(let x=0;x<w;x++){
-        for(let y=0;y<h;y++){
-          let r=0,g=0,b=0,a=0,kwSum=0
-          for(let k=0;k<kernel.length;k++){
-            const iy = clamp(y + k-half,0,h-1)
-            const idx = (iy*w + x)*4
-            const kv = kernel[k]
-            r += tmp[idx]*kv
-            g += tmp[idx+1]*kv
-            b += tmp[idx+2]*kv
-            a += tmp[idx+3]*kv
-            kwSum += kv
-          }
-          const idx = (y*w + x)*4
-          dst[idx] = r/kwSum
-          dst[idx+1] = g/kwSum
-          dst[idx+2] = b/kwSum
-          dst[idx+3] = a/kwSum
-        }
-      }
-      return new ImageData(dst,w,h)
-    }
-    function makeKernel(radius){
-      const sigma = radius
-      const len = Math.max(3, Math.ceil(sigma*6)|1)
-      const half = Math.floor(len/2)
-      const kernel = new Array(len)
-      const sigma2 = 2*sigma*sigma
-      let sum=0
-      for(let i=0;i<len;i++){
-        const x = i-half
-        const v = Math.exp(-(x*x)/sigma2)
-        kernel[i]=v
-        sum+=v
-      }
-      return kernel
-    }
-    amountEl.addEventListener('input',()=>{
-      amountVal.textContent = amountEl.value + '%'
-      if(origCtx) applyUnsharpMask(Number(amountEl.value), Number(radiusEl.value))
-    })
-    radiusEl.addEventListener('input',()=>{
-      radiusVal.textContent = radiusEl.value
-      if(origCtx) applyUnsharpMask(Number(amountEl.value), Number(radiusEl.value))
-    })
-    compareEl.addEventListener('change',()=>{
-      if(origCtx) applyUnsharpMask(Number(amountEl.value), Number(radiusEl.value))
-    })
-    fileEl.addEventListener('change',e=>{
-      const f = e.target.files && e.target.files[0]
-      if(!f) return
-      const url = URL.createObjectURL(f)
-      img = new Image()
-      img.onload = ()=>{
-        const dims = downscaleIfNeeded(img,2048)
-        ensureCanvases(dims.w,dims.h)
-        origCtx.drawImage(img,0,0,dims.w,dims.h)
-        outCtx.clearRect(0,0,dims.w,dims.h)
-        applyUnsharpMask(Number(amountEl.value), Number(radiusEl.value))
-        stats.textContent = dims.w + ' x ' + dims.h
-        URL.revokeObjectURL(url)
-      }
-      img.src = url
-    })
-    downloadBtn.addEventListener('click',()=>{
-      const link = document.createElement('a')
-      link.download = 'sharpened.png'
-      link.href = outCanvas.toDataURL('image/png')
-      link.click()
-    })
-    resetBtn.addEventListener('click',()=>{
-      reset()
-    })
-    fitBtn.addEventListener('click',()=>{
-      if(!origCtx) return
-      const w = origCanvas.width
-      const h = origCanvas.height
-      const max = 1024
-      if(Math.max(w,h)<=max) return
-      const ratio = w>h ? max/w : max/h
-      const nw = Math.round(w*ratio)
-      const nh = Math.round(h*ratio)
-      const tmpC = document.createElement('canvas')
-      tmpC.width = nw
-      tmpC.height = nh
-      const tctx = tmpC.getContext('2d')
-      tctx.drawImage(origCanvas,0,0,w,h,0,0,nw,nh)
-      ensureCanvases(nw,nh)
-      origCtx.drawImage(tmpC,0,0)
-      applyUnsharpMask(Number(amountEl.value), Number(radiusEl.value))
-      stats.textContent = nw + ' x ' + nh
-    })
-    window.addEventListener('load',()=>{
-      ensureCanvases(600,400)
-    })
-  </script>
+  }
+  return new ImageData(dst,w,h)
+}
+
+amountEl.addEventListener('input',()=>{
+  amountVal.textContent = amountEl.value+'%'
+  if(origCtx) sharpen(Number(amountEl.value))
+})
+
+fileEl.addEventListener('change',e=>{
+  const f = e.target.files[0]
+  if(!f) return
+  const url = URL.createObjectURL(f)
+  img = new Image()
+  img.onload = ()=>{
+    ensure(img.width,img.height)
+    origCtx.drawImage(img,0,0)
+    sharpen(Number(amountEl.value))
+    URL.revokeObjectURL(url)
+  }
+  img.src = url
+})
+
+downloadBtn.addEventListener('click',()=>{
+  const a = document.createElement('a')
+  a.download = 'sharpened.png'
+  a.href = outCanvas.toDataURL('image/png')
+  a.click()
+})
+
+resetBtn.addEventListener('click',()=>{
+  fileEl.value = ''
+  origCtx.clearRect(0,0,origCanvas.width,origCanvas.height)
+  outCtx.clearRect(0,0,outCanvas.width,outCanvas.height)
+})
+</script>
+
 </body>
 </html>
